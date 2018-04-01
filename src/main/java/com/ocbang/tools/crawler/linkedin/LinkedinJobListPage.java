@@ -1,4 +1,4 @@
-package com.ocbang.tools.crawler;
+package com.ocbang.tools.crawler.linkedin;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

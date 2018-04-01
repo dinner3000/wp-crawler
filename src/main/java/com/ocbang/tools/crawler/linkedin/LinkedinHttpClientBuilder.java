@@ -1,4 +1,4 @@
-package com.ocbang.tools.crawler;
+package com.ocbang.tools.crawler.linkedin;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
