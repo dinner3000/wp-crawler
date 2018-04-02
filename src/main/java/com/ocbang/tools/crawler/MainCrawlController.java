@@ -6,6 +6,7 @@ import com.ocbang.tools.crawler.internships.InternshipsJobListPage;
 import com.ocbang.tools.crawler.wordpress.WPPostsDAO;
 import com.ocbang.tools.crawler.internships.InternshipsJobEntity;
 import com.ocbang.tools.crawler.internships.InternshipsJobEntityQualifier;
+import com.ocbang.tools.crawler.wordpress.WPTermsDAO;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -27,6 +28,9 @@ public class MainCrawlController implements CommandLineRunner {
 
     @Autowired
     private WPPostsDAO wpPostsDAO;
+
+    @Autowired
+    private WPTermsDAO wpTermsDAO;
 
     @Autowired
     private InternshipsJobEntityQualifier internshipsJobEntityQualifier;
@@ -76,6 +80,7 @@ public class MainCrawlController implements CommandLineRunner {
                 logger.info("Import into wordpress db");
                 wpPostsDAO.init(internshipsJobEntity);
                 wpPostsDAO.save();
+                wpTermsDAO.init(wpPostsDAO.getId(), internshipsJobEntity);
             }
 
             Thread.sleep(1000);

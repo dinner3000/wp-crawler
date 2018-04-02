@@ -24,7 +24,6 @@ import java.util.*;
 import static org.json.XMLTokener.entity;
 
 @Repository
-@Scope("prototype")
 public class WPPostsDAO {
 
     private static Logger logger = LoggerFactory.getLogger(WPPostsDAO.class);
@@ -42,11 +41,17 @@ public class WPPostsDAO {
 
     private String guidTemplate = "http://ec2-184-73-133-229.compute-1.amazonaws.com/?p=%d";
 
+    private Long id;
+
+    public Long getId() {
+        return id;
+    }
+
     public WPPostsDAO(){
+        this.initDefaultValues(this.dataKeyValues);
     }
 
     public void init(InternshipsJobEntity entity) throws ParseException {
-        this.initDefaultValues(this.dataKeyValues);
         this.initWithCrawledData(this.dataKeyValues, entity);
     }
 
@@ -150,11 +155,13 @@ public class WPPostsDAO {
                 return ps;
             }
         };
-        this.jdbcTemplate.update(preparedStatementCreator, keyHolder);
+        jdbcTemplate.update(preparedStatementCreator, keyHolder);
         Long id = keyHolder.getKey().longValue();
+        this.id = id;
 
         final String sqlUpdate = "UPDATE `wp_posts` set `guid` = ? WHERE `id` = ?";
-        this.jdbcTemplate.update(sqlUpdate, this.generateGUID(id), id);
+        jdbcTemplate.update(sqlUpdate, this.generateGUID(id), id);
+
     }
 
     protected String generateGUID(Long id){
