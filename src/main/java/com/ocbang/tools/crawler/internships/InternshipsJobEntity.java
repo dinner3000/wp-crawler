@@ -1,9 +1,9 @@
-package com.ocbang.tools.crawler.wordpress;
+package com.ocbang.tools.crawler.internships;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-public class NoojobJobEntity {
+public class InternshipsJobEntity {
 
     //Data come from crawler
     private String title;
@@ -81,7 +81,7 @@ public class NoojobJobEntity {
 
     @Override
     public String toString() {
-        return "NoojobJobEntity{" +
+        return "InternshipsJobEntity{" +
                 "title='" + title + '\'' +
                 ", company='" + company + '\'' +
                 ", posted='" + posted + '\'' +

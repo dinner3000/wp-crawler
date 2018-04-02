@@ -1,6 +1,5 @@
 package com.ocbang.tools.crawler.internships;
 
-import com.ocbang.tools.crawler.wordpress.NoojobJobEntity;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -24,8 +23,8 @@ public class InternshipsJobDetailPage {
         this.document = Jsoup.parse(EntityUtils.toString(entity));
     }
 
-    public NoojobJobEntity produceNoojobEntity() {
-        NoojobJobEntity noojobJobEntity = new NoojobJobEntity();
+    public InternshipsJobEntity produceNoojobEntity() {
+        InternshipsJobEntity internshipsJobEntity = new InternshipsJobEntity();
 
         Element title = this.document.select("div[class=internship-detail-header] h1[class]").first();
         Element company = this.document.select("div[class=company-info] td[class=company-detail] div[class=company-name]>span").first();
@@ -37,38 +36,38 @@ public class InternshipsJobDetailPage {
         Element requirements = this.document.select("div[class=section requirements]").first();
 
         if (title != null) {
-            noojobJobEntity.setTitle(title.text());
+            internshipsJobEntity.setTitle(title.text());
         }
 
         if (company != null) {
-            noojobJobEntity.setCompany(company.text());
+            internshipsJobEntity.setCompany(company.text());
         }
 
         if (location != null) {
-            noojobJobEntity.setLocation(location.text());
+            internshipsJobEntity.setLocation(location.text());
         }
 
         if (posted != null) {
-            noojobJobEntity.setPosted(posted.text());
+            internshipsJobEntity.setPosted(posted.text());
         }
 
         if (internInfo != null) {
-            noojobJobEntity.setInternInfo(internInfo.html());
+            internshipsJobEntity.setInternInfo(internInfo.html());
         }
 
         if (description != null) {
-            noojobJobEntity.setDescription(description.html());
+            internshipsJobEntity.setDescription(description.html());
         }
 
         if (responsibilities != null) {
-            noojobJobEntity.setResponsibilities(responsibilities.html());
+            internshipsJobEntity.setResponsibilities(responsibilities.html());
         }
 
         if (requirements != null) {
-            noojobJobEntity.setRequirements(requirements.html());
+            internshipsJobEntity.setRequirements(requirements.html());
         }
 
-        return noojobJobEntity;
+        return internshipsJobEntity;
     }
 
 }

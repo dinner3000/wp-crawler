@@ -3,9 +3,9 @@ package com.ocbang.tools.crawler;
 import com.ocbang.tools.crawler.internships.InternshipsHttpClientBuilder;
 import com.ocbang.tools.crawler.internships.InternshipsJobDetailPage;
 import com.ocbang.tools.crawler.internships.InternshipsJobListPage;
-import com.ocbang.tools.crawler.wordpress.NoojobJobDataImportor;
-import com.ocbang.tools.crawler.wordpress.NoojobJobEntity;
-import com.ocbang.tools.crawler.wordpress.NoojobJobEntityQualifier;
+import com.ocbang.tools.crawler.wordpress.WPPostsDAO;
+import com.ocbang.tools.crawler.internships.InternshipsJobEntity;
+import com.ocbang.tools.crawler.internships.InternshipsJobEntityQualifier;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -26,9 +26,10 @@ public class MainCrawlController implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(MainCrawlController.class);
 
     @Autowired
-    private NoojobJobDataImportor noojobJobDataImportor;
+    private WPPostsDAO wpPostsDAO;
+
     @Autowired
-    private NoojobJobEntityQualifier noojobJobEntityQualifier;
+    private InternshipsJobEntityQualifier internshipsJobEntityQualifier;
 
     public MainCrawlController() {
     }
@@ -67,14 +68,14 @@ public class MainCrawlController implements CommandLineRunner {
             get.setHeader("Referer", "http://www.internships.com/search/posts?Keywords=&Location=");
             response = httpClient.execute(get);
             InternshipsJobDetailPage internshipsJobDetailPage = InternshipsJobDetailPage.createFromEntity(response.getEntity());
-            NoojobJobEntity noojobJobEntity = internshipsJobDetailPage.produceNoojobEntity();
-            if(!this.noojobJobEntityQualifier.isQualified(noojobJobEntity)) {
+            InternshipsJobEntity internshipsJobEntity = internshipsJobDetailPage.produceNoojobEntity();
+            if(!this.internshipsJobEntityQualifier.isQualified(internshipsJobEntity)) {
                 logger.info("Not qualified，drop it");
-                logger.debug(noojobJobEntity.toString());
+                logger.debug(internshipsJobEntity.toString());
             }else {
                 logger.info("Import into wordpress db");
-                this.noojobJobDataImportor.setCrawledData(noojobJobEntity);
-                this.noojobJobDataImportor.importData();
+                wpPostsDAO.init(internshipsJobEntity);
+                wpPostsDAO.save();
             }
 
             Thread.sleep(1000);

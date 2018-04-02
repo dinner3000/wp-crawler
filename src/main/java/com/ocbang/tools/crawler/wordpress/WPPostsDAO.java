@@ -1,5 +1,6 @@
 package com.ocbang.tools.crawler.wordpress;
 
+import com.ocbang.tools.crawler.internships.InternshipsJobEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static org.json.XMLTokener.entity;
+
 @Repository
 @Scope("prototype")
-public class NoojobJobDataImportor {
+public class WPPostsDAO {
 
-    private static Logger logger = LoggerFactory.getLogger(NoojobJobDataImportor.class);
+    private static Logger logger = LoggerFactory.getLogger(WPPostsDAO.class);
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -35,21 +38,19 @@ public class NoojobJobDataImportor {
     private DateFormat dbDatetimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private DateFormat postedDataFormat = new SimpleDateFormat("MMM dd yyyy");
 
-    private String defaultAuthorId = "15";
+    private String defaultAuthorId = "1";
 
     private String guidTemplate = "http://ec2-184-73-133-229.compute-1.amazonaws.com/?p=%d";
 
-    public NoojobJobDataImportor(){
-//        this.timestamp = this.generateTimestamp();
-        this.initDataKeyValues(this.dataKeyValues);
+    public WPPostsDAO(){
     }
 
-//    protected String generateTimestamp(){
-//        Date date = new Date();
-//        return this.dbDatetimeFormat.format(date);
-//    }
+    public void init(InternshipsJobEntity entity) throws ParseException {
+        this.initDefaultValues(this.dataKeyValues);
+        this.initWithCrawledData(this.dataKeyValues, entity);
+    }
 
-    protected void initDataKeyValues(Map<String, String> dataMap){
+    protected void initDefaultValues(Map<String, String> dataMap){
 
         //====== Init preset values
         //# ID, user_login, user_pass, user_nicename, user_email, user_url, user_registered, user_activation_key, user_status, display_name
@@ -83,26 +84,25 @@ public class NoojobJobDataImportor {
         dataMap.put("guid", "");
     }
 
+    protected void initWithCrawledData(Map<String, String> dataMap, InternshipsJobEntity entity) throws ParseException {
+        dataMap.put("post_title", entity.getTitle());
+        dataMap.put("post_name", entity.getTitle());
+
+        String postedDate = this.extractPostedDate(entity.getPosted());
+        dataMap.put("post_date", postedDate); //Format: 2018-03-31 15:55:32
+        dataMap.put("post_date_gmt", postedDate);
+        dataMap.put("post_modified", postedDate);
+        dataMap.put("post_modified_gmt", postedDate);
+        dataMap.put("post_content",
+                entity.getDescription() + entity.getResponsibilities() + entity.getRequirements());
+//        this.dataKeyValues.put("guid", "");
+    }
+
     protected String extractPostedDate(String postedDate) throws ParseException {
         //Posted: April 01 2018
         postedDate = postedDate.replaceAll("Posted: ", "");
         Date date = this.postedDataFormat.parse(postedDate);
         return this.dbDatetimeFormat.format(date);
-    }
-
-    public void setCrawledData(NoojobJobEntity entity) throws ParseException {
-        this.dataKeyValues.put("post_title", entity.getTitle());
-        this.dataKeyValues.put("post_name", entity.getTitle());
-
-
-        String postedDate = this.extractPostedDate(entity.getPosted());
-        this.dataKeyValues.put("post_date", postedDate); //Format: 2018-03-31 15:55:32
-        this.dataKeyValues.put("post_date_gmt", postedDate);
-        this.dataKeyValues.put("post_modified", postedDate);
-        this.dataKeyValues.put("post_modified_gmt", postedDate);
-        this.dataKeyValues.put("post_content",
-                entity.getDescription() + entity.getResponsibilities() + entity.getRequirements());
-//        this.dataKeyValues.put("guid", "");
     }
 
     protected boolean recordExists(){
@@ -116,7 +116,7 @@ public class NoojobJobDataImportor {
         return cnt > 0;
     }
 
-    public void importData(){
+    public void save(){
         if(!this.recordExists()){
             this.insertRecord();
         }else {
