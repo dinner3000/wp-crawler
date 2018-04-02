@@ -1,11 +1,7 @@
 package com.ocbang.tools.crawler;
 
-import com.ocbang.tools.crawler.internships.InternshipsHttpClientBuilder;
-import com.ocbang.tools.crawler.internships.InternshipsJobDetailPage;
-import com.ocbang.tools.crawler.internships.InternshipsJobListPage;
+import com.ocbang.tools.crawler.internships.*;
 import com.ocbang.tools.crawler.wordpress.WPPostsDAO;
-import com.ocbang.tools.crawler.internships.InternshipsJobEntity;
-import com.ocbang.tools.crawler.internships.InternshipsJobEntityQualifier;
 import com.ocbang.tools.crawler.wordpress.WPTermsDAO;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -59,7 +55,12 @@ public class MainCrawlController implements CommandLineRunner {
         get = new HttpGet("http://www.internships.com/search/posts?Keywords=&Location=");
         get.setHeader("Referer", "http://www.internships.com/student");
         response = httpClient.execute(get);
-        InternshipsJobListPage internshipsJobListPage = InternshipsJobListPage.createFromEntity(response.getEntity(), "http://www.internships.com/");
+        List<InternshipsJobListItem> jobListItems =
+                InternshipsJobListItem.createFromEntity(response.getEntity(),
+                        "http://www.internships.com/");
+        InternshipsJobListPage internshipsJobListPage =
+                InternshipsJobListPage.createFromEntity(response.getEntity(),
+                        "http://www.internships.com/");
         response.close();
 
         Thread.sleep(1000);
