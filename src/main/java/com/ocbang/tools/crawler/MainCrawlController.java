@@ -55,9 +55,6 @@ public class MainCrawlController implements CommandLineRunner {
         get = new HttpGet("http://www.internships.com/search/posts?Keywords=&Location=");
         get.setHeader("Referer", "http://www.internships.com/student");
         response = httpClient.execute(get);
-        List<InternshipsJobListItem> jobListItems =
-                InternshipsJobListItem.createFromEntity(response.getEntity(),
-                        "http://www.internships.com/");
         InternshipsJobListPage internshipsJobListPage =
                 InternshipsJobListPage.createFromEntity(response.getEntity(),
                         "http://www.internships.com/");
@@ -66,10 +63,10 @@ public class MainCrawlController implements CommandLineRunner {
         Thread.sleep(1000);
 
         //Job details
-        List<String> jobDetailUrls = internshipsJobListPage.getJobDetailPageUrls();
-        for (String url:jobDetailUrls) {
-            logger.info("Processing {}", url);
-            get = new HttpGet(url);
+        List<InternshipsJobListItem> jobListItems = internshipsJobListPage.extractJobListItems();
+        for (InternshipsJobListItem jobListItem:jobListItems) {
+            logger.info("Processing {}", jobListItem.toString());
+            get = new HttpGet(jobListItem.getUrl());
             get.setHeader("Referer", "http://www.internships.com/search/posts?Keywords=&Location=");
             response = httpClient.execute(get);
             InternshipsJobDetailPage internshipsJobDetailPage = InternshipsJobDetailPage.createFromEntity(response.getEntity());
@@ -80,8 +77,10 @@ public class MainCrawlController implements CommandLineRunner {
             }else {
                 logger.info("Import into wordpress db");
                 wpPostsDAO.init(internshipsJobEntity);
-                wpPostsDAO.save();
-                wpTermsDAO.init(wpPostsDAO.getId(), internshipsJobEntity);
+                if(wpPostsDAO.save()) {
+                    wpTermsDAO.init(wpPostsDAO.getId(), jobListItem);
+                    wpTermsDAO.save();
+                }
             }
 
             Thread.sleep(1000);

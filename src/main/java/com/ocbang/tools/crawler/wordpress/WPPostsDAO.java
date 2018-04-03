@@ -121,12 +121,15 @@ public class WPPostsDAO {
         return cnt > 0;
     }
 
-    public void save(){
+    public boolean save(){
+        boolean ret = false;
         if(!this.recordExists()){
             this.insertRecord();
+            ret = true;
         }else {
             logger.info("Record already exists, ignore");
         }
+        return ret;
     }
 
     protected void insertRecord(){

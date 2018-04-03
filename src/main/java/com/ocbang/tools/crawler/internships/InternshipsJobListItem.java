@@ -20,39 +20,26 @@ public class InternshipsJobListItem {
     private static Logger logger = LoggerFactory.getLogger(InternshipsJobListItem.class);
 
     private String url;
+    private String category;
     private String company;
     private String location;
     private String posted;
     private String timeType;
     private String payType;
 
-    public static List<InternshipsJobListItem> createFromEntity(HttpEntity entity, String baseUrl) throws IOException {
-        List<InternshipsJobListItem> ret = new ArrayList<>();
-
-        Document document = Jsoup.parse(EntityUtils.toString(entity), baseUrl);
-        Elements jobListItems = document.select("div[class=pnl] div[class=internship-result-link-item");
-        jobListItems.stream().forEach(jobListItem -> {
-            Element url = jobListItem.select("a[data-job-id]").first();
-            Element company = jobListItem.select("span[class=company-name]>span").first();
-            Element location = jobListItem.select("span[class=internship-location]").first();
-            Element posted = jobListItem.select("span[class=date-title]").first();
-            Element timeType = jobListItem.select("span[class=job-type job-part-time]").first();
-            Element payType = jobListItem.select("span[class=job-type job-paid]").first();
-            if(url != null){
-                InternshipsJobListItem item = new InternshipsJobListItem();
-                item.setUrl(url.absUrl("href"));
-                if(company != null) item.setCompany(company.text());
-                if(location != null) item.setLocation(location.text());
-                if(posted != null) item.setPosted(posted.text());
-                if(timeType != null) item.setTimeType(timeType.text());
-                if(payType != null) item.setPayType(payType.text());
-                ret.add(item);
-            }
-        });
-        return ret;
+    protected InternshipsJobListItem() {
     }
 
-    protected InternshipsJobListItem() {
+    @Override
+    public String toString() {
+        return "InternshipsJobListItem{" +
+                "url='" + url + '\'' +
+                ", company='" + company + '\'' +
+                ", location='" + location + '\'' +
+                ", posted='" + posted + '\'' +
+                ", timeType='" + timeType + '\'' +
+                ", payType='" + payType + '\'' +
+                '}';
     }
 
     public String getUrl() {
@@ -61,6 +48,14 @@ public class InternshipsJobListItem {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getCompany() {
