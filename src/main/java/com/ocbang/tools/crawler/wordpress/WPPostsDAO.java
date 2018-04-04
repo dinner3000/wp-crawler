@@ -102,7 +102,8 @@ public class WPPostsDAO {
     }
 
     protected String convertToPostName(String title){
-        return title.toLowerCase().replaceAll("[^a-z]", "-").replaceAll("--", "");
+        return title.toLowerCase().replaceAll("[^a-z0-9_\\- ]", "")
+                .replaceAll(" ", "-").replaceAll("--", "");
     }
 
     protected void initPostsWithCrawledData(Map<String, String> dataMap, InternshipsJobDetailEntity entity) {
