@@ -83,7 +83,7 @@ public class WPTermsDAO {
             ret = this.jobCategoryMap.get(keyWord);
         }
 
-        if (ret == 0L || ret == null) ret = 51L;
+        if (ret == null || ret == 0L ) ret = 51L;
 
         return ret;
     }

@@ -63,12 +63,15 @@ public class InternshipsJobDetailPage {
             while (it.hasNext()){
                 ele = (Element)it.next();
                 if(ele.text().toLowerCase().contains("deadline")){
+                    //Application Deadline: May 4, 2018
                     ele = (Element)it.next();
                     internshipsJobDetailEntity.setDeadline(ele.text().replaceAll("(?i)Application Deadline:", "").trim());
                 } else if(ele.text().toLowerCase().contains("position")){
+                    //Position: 10 Full-time, Unpaid
                     ele = (Element)it.next();
                     internshipsJobDetailEntity.setPosition(ele.text().replaceAll("(?i)Position:", "").trim());
                 } else if(ele.text().toLowerCase().contains("timeframe")){
+                    //Timeframe: 04/05/18 — 07/05/18
                     ele = (Element)it.next();
                     String text = ele.text().replaceAll("(?i)Timeframe:", "").trim();
                     internshipsJobDetailEntity.setTimeframe(text);

@@ -35,9 +35,16 @@ public class WPPostsDAO {
     private Map<String, String> postsKeyValues = new HashMap<>();
     private Map<String, String> metaKeyValues = new HashMap<>();
 
+    //0000-00-00 00:00:00
     private DateFormat dbDatetimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    //0000-00-00 00:00:00
+    private DateFormat dbDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    //April 04 2018
     private DateFormat postedDateFormat = new SimpleDateFormat("MMM dd yyyy");
-    private DateFormat deadlineDateFormat = new SimpleDateFormat("MMM dd yyyy");
+    //May 4, 2018
+    private DateFormat deadlineDateFormat = new SimpleDateFormat("MMM dd, yyyy");
+    //04/05/18 — 07/05/18
+    private DateFormat timeframeDateFormat = new SimpleDateFormat("MM/dd/yy");
 
     @Value("${wordpress.default-author-id}")
     private String defaultAuthorId;
@@ -51,14 +58,10 @@ public class WPPostsDAO {
     }
 
     public WPPostsDAO(){
+
     }
 
-    public void init(InternshipsJobDetailEntity entity) throws ParseException {
-        this.initPostsWithCrawledData(this.postsKeyValues, entity);
-    }
-
-    @PostConstruct
-    protected void initPostsDefaultValues(Map<String, String> dataMap){
+    protected void initPostsDefaultValues(Map<String, String> dataMap) {
 
         //====== Init preset values
         //# ID, user_login, user_pass, user_nicename, user_email, user_url, user_registered, user_activation_key, user_status, display_name
@@ -92,9 +95,19 @@ public class WPPostsDAO {
         dataMap.put("guid", "");
     }
 
-    protected void initPostsWithCrawledData(Map<String, String> dataMap, InternshipsJobDetailEntity entity) throws ParseException {
+    public void init(InternshipsJobSummaryEntity jobSummaryEntity, InternshipsJobDetailEntity jobDetailEntity) {
+        this.initPostsDefaultValues(this.postsKeyValues);
+        this.initPostsWithCrawledData(this.postsKeyValues, jobDetailEntity);
+        this.initPostmetaWithCrawledData(this.metaKeyValues, jobSummaryEntity, jobDetailEntity);
+    }
+
+    protected String convertToPostName(String title){
+        return title.toLowerCase().replaceAll("[^a-z]", "-").replaceAll("--", "");
+    }
+
+    protected void initPostsWithCrawledData(Map<String, String> dataMap, InternshipsJobDetailEntity entity) {
         dataMap.put("post_title", entity.getTitle());
-        dataMap.put("post_name", entity.getTitle());
+        dataMap.put("post_name", this.convertToPostName(entity.getTitle()));
 
         String postedDate = this.extractPostedDate(entity.getPosted());
         dataMap.put("post_date", postedDate); //Format: 2018-03-31 15:55:32
@@ -106,49 +119,64 @@ public class WPPostsDAO {
 //        this.postsKeyValues.put("guid", "");
     }
 
-    protected String extractPostedDate(String dateText) throws ParseException {
-        //Posted: April 01 2018
-//        postedDate = postedDate.replaceAll("Posted: ", "");
-        Date date = this.postedDateFormat.parse(dateText);
-        return this.dbDatetimeFormat.format(date);
+    protected void initPostmetaWithCrawledData(Map<String, String> dataMap, InternshipsJobSummaryEntity jobSummaryEntity,
+                                               InternshipsJobDetailEntity jobDetailEntity) {
+        dataMap.put("_vc_post_settings", "a:1:{s:10:\\\"vc_grid_id\\\";a:0:{}}");
+        dataMap.put("_featured", "no");
+//        dataMap.put("_edit_last", "");
+        dataMap.put("slide_template", "default");
+        dataMap.put("_location", jobSummaryEntity.getLocation());
+        dataMap.put("_company_name", jobSummaryEntity.getCompany());
+
+        String expires = this.extractTimeframeDate(jobDetailEntity.getEndDate());
+        if (expires != null) dataMap.put("_job_expires", expires);
+        dataMap.put("_company_desc", jobDetailEntity.getCompany());
+//        dataMap.put("_company_logo", "");
+//        dataMap.put("_company_website", "");
+//        dataMap.put("_company_googleplus", "");
+//        dataMap.put("_company_facebook", "");
+//        dataMap.put("_company_linkedin", "");
+//        dataMap.put("_company_twitter", "");
+//        dataMap.put("_company_instagram", "");
+//        dataMap.put("_company_id", "");
+//        dataMap.put("_application_email", "");
+        String deadline = this.extractDeadlineDate(jobDetailEntity.getDeadline());
+        if (deadline != null) dataMap.put("_closing", jobDetailEntity.getDeadline());
+//        dataMap.put("_noo_views_count", "");
+//        dataMap.put("_noo_job_applications_count", "");
+
     }
 
-    protected String extractDeadlineDate(String dateText) throws ParseException {
-        //Posted: April 01 2018
-//        postedDate = postedDate.replaceAll("Posted: ", "");
-        Date date = this.deadlineDateFormat.parse(dateText);
-        return this.dbDatetimeFormat.format(date);
-    }
-
-    protected boolean postsRecordExists(){
+    protected boolean postsRecordExists() {
         String sql = "SELECT COUNT(1) FROM wp_posts WHERE `post_author` = ? AND `post_title` = ? AND `post_date` = ?";
         Integer cnt = this.jdbcTemplate.queryForObject(sql, new Object[]{
-                this.defaultAuthorId,
-                this.postsKeyValues.get("post_title"),
-                this.postsKeyValues.get("post_date")},
+                        this.defaultAuthorId,
+                        this.postsKeyValues.get("post_title"),
+                        this.postsKeyValues.get("post_date")},
                 Integer.class);
 
         return cnt > 0;
     }
 
-    public boolean save(){
+    public boolean save() {
         boolean ret = false;
-        if(!this.postsRecordExists()){
+        if (!this.postsRecordExists()) {
             this.insertPosts();
+            this.insertPostmeta();
             ret = true;
-        }else {
+        } else {
             logger.info("Record already exists, ignore");
         }
         return ret;
     }
 
-    protected void insertPosts(){
+    protected void insertPosts() {
 
         List<String> fields = new ArrayList<>();
         List<String> values = new ArrayList<>();
         List<String> placeholders = new ArrayList<>();
 
-        for (String key:this.postsKeyValues.keySet()) {
+        for (String key : this.postsKeyValues.keySet()) {
             fields.add("`" + key + "`");
             values.add(this.postsKeyValues.get(key));
             placeholders.add("?");
@@ -163,7 +191,7 @@ public class WPPostsDAO {
             public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
                 PreparedStatement ps = connection.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
                 for (int i = 0; i < values.size(); i++) {
-                    ps.setObject(i+1, values.get(i));
+                    ps.setObject(i + 1, values.get(i));
                 }
                 return ps;
             }
@@ -177,59 +205,63 @@ public class WPPostsDAO {
 
     }
 
-    protected String generateGUID(Long id){
-        return String.format(this.guidTemplate, id);
-    }
-
-    protected void initPostmetaWithCrawledData(Map<String, String> dataMap, InternshipsJobSummaryEntity jobSummaryEntity,
-                                               InternshipsJobDetailEntity jobDetailEntity){
+    protected void insertPostmeta() {
         /*
-INSERT INTO wp_postmeta (post_id, meta_key, meta_value)
-SELECT 1237, '_vc_post_settings', 'a:1:{s:10:\"vc_grid_id\";a:0:{}}' UNION ALL
-SELECT 1237, '_featured', 'no' UNION ALL
-SELECT 1237, '_edit_last', '2' UNION ALL
-SELECT 1237, 'slide_template', 'default' UNION ALL
-SELECT 1237, '_location', 'San Jose, California' UNION ALL
-SELECT 1237, '_company_name', 'eBay Inc.' UNION ALL
-SELECT 1237, '_job_expires', '2015-08-26' UNION ALL
-SELECT 1237, '_company_desc', 'eBay Inc., is an American multinational corporation and e-commerce company, providing consumer-to-consumer &amp; business-to-consumer sales services via Internet. It is headquartered in San Jose, California, United States.' UNION ALL
-SELECT 1237, '_company_logo', '181' UNION ALL
-SELECT 1237, '_company_website', 'http://www.ebay.com/' UNION ALL
-SELECT 1237, '_company_googleplus', 'https://plus.google.com/+eBay' UNION ALL
-SELECT 1237, '_company_facebook', 'https://www.facebook.com/eBayGlobal' UNION ALL
-SELECT 1237, '_company_linkedin', 'https://linkedin.com/company/eBay' UNION ALL
-SELECT 1237, '_company_twitter', 'https://twitter.com/eBay' UNION ALL
-SELECT 1237, '_company_instagram', 'https://instagram.com/eBay' UNION ALL
-SELECT 1237, '_company_id', '275' UNION ALL
-SELECT 1237, '_application_email', '' UNION ALL
-SELECT 1237, '_closing', '2016-03-17' UNION ALL
-SELECT 1237, '_noo_views_count', '84' UNION ALL
-SELECT 1237, '_noo_job_applications_count', '0'
+        INSERT INTO wp_postmeta (post_id, meta_key, meta_value)
+        SELECT 1237, '_vc_post_settings', 'a:1:{s:10:\"vc_grid_id\";a:0:{}}' UNION ALL
+        SELECT 1237, '_featured', 'no' UNION ALL
+        ...
          */
-        dataMap.put("_vc_post_settings", "a:1:{s:10:\\\"vc_grid_id\\\";a:0:{}}");
-        dataMap.put("_featured", "no");
-//        dataMap.put("_edit_last", "");
-        dataMap.put("slide_template", "default");
-        dataMap.put("_location", jobSummaryEntity.getLocation());
-        dataMap.put("_company_name", jobSummaryEntity.getCompany());
-        dataMap.put("_job_expires", jobDetailEntity.getDeadline());
-        dataMap.put("_company_desc", "");
-//        dataMap.put("_company_logo", "");
-//        dataMap.put("_company_website", "");
-//        dataMap.put("_company_googleplus", "");
-//        dataMap.put("_company_facebook", "");
-//        dataMap.put("_company_linkedin", "");
-//        dataMap.put("_company_twitter", "");
-//        dataMap.put("_company_instagram", "");
-//        dataMap.put("_company_id", "");
-//        dataMap.put("_application_email", "");
-        dataMap.put("_closing", jobDetailEntity.getDeadline());
-//        dataMap.put("_noo_views_count", "");
-//        dataMap.put("_noo_job_applications_count", "");
+        String sqlTemplate = "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) ";
+        List<String> dataList = new ArrayList<>();
+        for (Map.Entry<String, String> entry:this.metaKeyValues.entrySet()){
+            dataList.add(String.format("SELECT %d, '%s', '%s'", this.id, entry.getKey(), entry.getValue()));
+        }
+        sqlTemplate += StringUtils.arrayToDelimitedString(dataList.toArray(), " UNION ALL ");
+
+        jdbcTemplate.update(sqlTemplate);
 
     }
 
-    protected void insertPostmeta(Map<String, String> dataMap){
+    protected String extractPostedDate(String dateText) {
+        String ret = this.timestamp;
+        try {
+            Date date = this.postedDateFormat.parse(dateText);
+            ret = this.dbDatetimeFormat.format(date);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return ret;
+    }
+
+    protected String extractDeadlineDate(String dateText) {
+        if(dateText == null) return null;
+
+        String ret = null;
+        try {
+            Date date = this.deadlineDateFormat.parse(dateText);
+            ret = this.dbDateFormat.format(date);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return ret;
+    }
+
+    protected String extractTimeframeDate(String dateText) {
+        if(dateText == null) return null;
+
+        String ret = null;
+        try {
+            Date date = this.timeframeDateFormat.parse(dateText);
+            ret = String.valueOf(date.getTime() / 1000);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return ret;
+    }
+
+    protected String generateGUID(Long id) {
+        return String.format(this.guidTemplate, id);
     }
 
 }

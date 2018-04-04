@@ -57,22 +57,22 @@ public class InternshipsCrawlController {
         Thread.sleep(1000);
 
         //Job details
-        List<InternshipsJobSummaryEntity> jobListItems = internshipsJobListPage.extractJobListItems();
-        for (InternshipsJobSummaryEntity jobListItem : jobListItems) {
-            logger.info("Processing {}", jobListItem.toString());
-            get = new HttpGet(jobListItem.getUrl());
+        List<InternshipsJobSummaryEntity> jobSummaryEntities = internshipsJobListPage.extractJobListItems();
+        for (InternshipsJobSummaryEntity jobSummaryEntity : jobSummaryEntities) {
+            logger.info("Processing {}", jobSummaryEntity.toString());
+            get = new HttpGet(jobSummaryEntity.getUrl());
             get.setHeader("Referer", this.jobListPageUrl);
             response = httpClient.execute(get);
             InternshipsJobDetailPage internshipsJobDetailPage = InternshipsJobDetailPage.createFromEntity(response.getEntity());
-            InternshipsJobDetailEntity internshipsJobDetailEntity = internshipsJobDetailPage.produceJobDetailEntity();
-            if (!this.internshipsJobDetailEntityQualifier.isQualified(internshipsJobDetailEntity)) {
+            InternshipsJobDetailEntity jobDetailEntity = internshipsJobDetailPage.produceJobDetailEntity();
+            if (!this.internshipsJobDetailEntityQualifier.isQualified(jobDetailEntity)) {
                 logger.info("Not qualified，drop it");
-                logger.debug(internshipsJobDetailEntity.toString());
+                logger.debug(jobDetailEntity.toString());
             } else {
                 logger.info("Import into wordpress db");
-                wpPostsDAO.init(internshipsJobDetailEntity);
+                wpPostsDAO.init(jobSummaryEntity, jobDetailEntity);
                 if (wpPostsDAO.save()) {
-                    wpTermsDAO.init(wpPostsDAO.getId(), jobListItem);
+                    wpTermsDAO.init(wpPostsDAO.getId(), jobSummaryEntity);
                     wpTermsDAO.save();
                 }
             }
