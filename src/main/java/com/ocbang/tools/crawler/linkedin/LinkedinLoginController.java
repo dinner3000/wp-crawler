@@ -1,6 +1,9 @@
 package com.ocbang.tools.crawler.linkedin;
 
-import org.apache.http.*;
+import org.apache.http.Consts;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;

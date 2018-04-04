@@ -1,7 +1,6 @@
 package com.ocbang.tools.crawler.wordpress;
 
-import com.ocbang.tools.crawler.internships.InternshipsJobEntity;
-import com.ocbang.tools.crawler.internships.InternshipsJobListItem;
+import com.ocbang.tools.crawler.internships.InternshipsJobSummaryEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -68,7 +67,7 @@ public class WPTermsDAO {
         jobLocationMap = locationMap;
     }
 
-    public void init(Long id, InternshipsJobListItem jobListItem) {
+    public void init(Long id, InternshipsJobSummaryEntity jobListItem) {
         this.id = id;
         this.categoryId = this.searchJobCategoryId(jobListItem.getCategory());
         this.typeId = this.searchJobTypeId(jobListItem.getTimeType());

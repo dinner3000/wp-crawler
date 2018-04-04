@@ -1,19 +1,22 @@
 package com.ocbang.tools.crawler.internships;
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
-public class InternshipsJobEntity {
+public class InternshipsJobDetailEntity {
 
     //Data come from crawler
     private String title;
     private String company;
     private String posted;
     private String location;
-    private String internInfo;
     private String description;
     private String responsibilities;
     private String requirements;
+
+    private String internInfo;
+    private String deadline;
+    private String position;
+    private String timeframe;
+    private String startDate;
+    private String endDate;
 
     public String getTitle() {
         return title;
@@ -79,17 +82,62 @@ public class InternshipsJobEntity {
         this.requirements = requirements;
     }
 
+    public String getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(String deadline) {
+        this.deadline = deadline;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public String getTimeframe() {
+        return timeframe;
+    }
+
+    public void setTimeframe(String timeframe) {
+        this.timeframe = timeframe;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
     @Override
     public String toString() {
-        return "InternshipsJobEntity{" +
+        return "InternshipsJobDetailEntity{" +
                 "title='" + title + '\'' +
                 ", company='" + company + '\'' +
                 ", posted='" + posted + '\'' +
                 ", location='" + location + '\'' +
-                ", internInfo='" + internInfo + '\'' +
                 ", description='" + description + '\'' +
                 ", responsibilities='" + responsibilities + '\'' +
                 ", requirements='" + requirements + '\'' +
+                ", internInfo='" + internInfo + '\'' +
+                ", deadline='" + deadline + '\'' +
+                ", position='" + position + '\'' +
+                ", timeframe='" + timeframe + '\'' +
+                ", startDate='" + startDate + '\'' +
+                ", endDate='" + endDate + '\'' +
                 '}';
     }
 }

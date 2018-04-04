@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Component
-public class InternshipsJobEntityQualifier {
-    public static boolean isQualified(InternshipsJobEntity jobEntity){
+public class InternshipsJobDetailEntityQualifier {
+    public static boolean isQualified(InternshipsJobDetailEntity jobEntity){
         boolean ret = false;
 
         do {

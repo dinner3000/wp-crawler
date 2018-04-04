@@ -2,7 +2,6 @@ package com.ocbang.tools.crawler.internships;
 
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.TrustStrategy;

@@ -1,12 +1,11 @@
 package com.ocbang.tools.crawler.internships;
 
-import com.sun.org.apache.xerces.internal.xs.StringList;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class InternshipsJobDetailsPageUrlPatterns {
+public class InternshipsJobDetailPageUrlQualifier {
 
     private static List<String> majors;
 
@@ -24,7 +23,7 @@ public class InternshipsJobDetailsPageUrlPatterns {
                 "Business");
     }
 
-    public static boolean isMatch(String url) {
+    public static boolean isQualified(String url) {
         boolean ret = getSlashCount(url) >= 4;
         return ret;
     }

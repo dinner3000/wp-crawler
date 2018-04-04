@@ -1,14 +1,17 @@
 package com.ocbang.tools.crawler.internships;
 
+import com.sun.xml.internal.bind.v2.runtime.output.NamespaceContextImpl;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 public class InternshipsJobDetailPage {
     private static Logger logger = LoggerFactory.getLogger(InternshipsJobDetailPage.class);
@@ -23,8 +26,8 @@ public class InternshipsJobDetailPage {
         this.document = Jsoup.parse(EntityUtils.toString(entity));
     }
 
-    public InternshipsJobEntity produceNoojobEntity() {
-        InternshipsJobEntity internshipsJobEntity = new InternshipsJobEntity();
+    public InternshipsJobDetailEntity produceJobDetailEntity() {
+        InternshipsJobDetailEntity internshipsJobDetailEntity = new InternshipsJobDetailEntity();
 
         Element title = this.document.select("div[class=internship-detail-header] h1[class]").first();
         Element company = this.document.select("div[class=company-info] td[class=company-detail] div[class=company-name]>span").first();
@@ -36,38 +39,61 @@ public class InternshipsJobDetailPage {
         Element requirements = this.document.select("div[class=section requirements]").first();
 
         if (title != null) {
-            internshipsJobEntity.setTitle(title.text());
+            internshipsJobDetailEntity.setTitle(title.text());
         }
 
         if (company != null) {
-            internshipsJobEntity.setCompany(company.text());
+            internshipsJobDetailEntity.setCompany(company.text());
         }
 
         if (location != null) {
-            internshipsJobEntity.setLocation(location.text());
+            internshipsJobDetailEntity.setLocation(location.text());
         }
 
         if (posted != null) {
-            internshipsJobEntity.setPosted(posted.text());
+            internshipsJobDetailEntity.setPosted(posted.text().replaceAll("(?i)Posted:", "").trim());
         }
 
         if (internInfo != null) {
-            internshipsJobEntity.setInternInfo(internInfo.html());
+            internshipsJobDetailEntity.setInternInfo(internInfo.html());
+
+            Elements eles = internInfo.select("div>div>strong,span");
+            Element ele = null;
+            Iterator it = eles.iterator();
+            while (it.hasNext()){
+                ele = (Element)it.next();
+                if(ele.text().toLowerCase().contains("deadline")){
+                    ele = (Element)it.next();
+                    internshipsJobDetailEntity.setDeadline(ele.text().replaceAll("(?i)Application Deadline:", "").trim());
+                } else if(ele.text().toLowerCase().contains("position")){
+                    ele = (Element)it.next();
+                    internshipsJobDetailEntity.setPosition(ele.text().replaceAll("(?i)Position:", "").trim());
+                } else if(ele.text().toLowerCase().contains("timeframe")){
+                    ele = (Element)it.next();
+                    String text = ele.text().replaceAll("(?i)Timeframe:", "").trim();
+                    internshipsJobDetailEntity.setTimeframe(text);
+                    String[] buf = text.split("—");
+                    if(buf.length>1){
+                        internshipsJobDetailEntity.setStartDate(buf[0]);
+                        internshipsJobDetailEntity.setEndDate(buf[1]);
+                    }
+                }
+            }
         }
 
         if (description != null) {
-            internshipsJobEntity.setDescription(description.html());
+            internshipsJobDetailEntity.setDescription(description.html());
         }
 
         if (responsibilities != null) {
-            internshipsJobEntity.setResponsibilities(responsibilities.html());
+            internshipsJobDetailEntity.setResponsibilities(responsibilities.html());
         }
 
         if (requirements != null) {
-            internshipsJobEntity.setRequirements(requirements.html());
+            internshipsJobDetailEntity.setRequirements(requirements.html());
         }
 
-        return internshipsJobEntity;
+        return internshipsJobDetailEntity;
     }
 
 }

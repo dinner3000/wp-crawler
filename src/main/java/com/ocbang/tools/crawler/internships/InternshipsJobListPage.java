@@ -28,8 +28,8 @@ public class InternshipsJobListPage {
         this.document = Jsoup.parse(EntityUtils.toString(entity), baseUrl);
     }
 
-    public List<InternshipsJobListItem> extractJobListItems() throws IOException {
-        List<InternshipsJobListItem> jobList = new ArrayList<>();
+    public List<InternshipsJobSummaryEntity> extractJobListItems() throws IOException {
+        List<InternshipsJobSummaryEntity> jobList = new ArrayList<>();
 
         Elements listItems = this.document.select("div[class=pnl] div[class=internship-result-link-item");
         listItems.stream().forEach(listItem -> {
@@ -48,9 +48,9 @@ public class InternshipsJobListPage {
                 if(buffer.length > 1) category = buffer[1];
             }
 
-            if(!StringUtils.isEmpty(absUrl) && InternshipsJobDetailsPageUrlPatterns.isMatch(absUrl)){
+            if(!StringUtils.isEmpty(absUrl) && InternshipsJobDetailPageUrlQualifier.isQualified(absUrl)){
 
-                InternshipsJobListItem jobItem = new InternshipsJobListItem();
+                InternshipsJobSummaryEntity jobItem = new InternshipsJobSummaryEntity();
                 jobItem.setUrl(absUrl);
                 if(category != null) jobItem.setCategory(category);
                 if(company != null) jobItem.setCompany(company.text());

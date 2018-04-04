@@ -1,23 +1,10 @@
 package com.ocbang.tools.crawler.internships;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.util.EntityUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-public class InternshipsJobListItem {
-    private static Logger logger = LoggerFactory.getLogger(InternshipsJobListItem.class);
+public class InternshipsJobSummaryEntity {
+    private static Logger logger = LoggerFactory.getLogger(InternshipsJobSummaryEntity.class);
 
     private String url;
     private String category;
@@ -27,12 +14,12 @@ public class InternshipsJobListItem {
     private String timeType;
     private String payType;
 
-    protected InternshipsJobListItem() {
+    protected InternshipsJobSummaryEntity() {
     }
 
     @Override
     public String toString() {
-        return "InternshipsJobListItem{" +
+        return "InternshipsJobSummaryEntity{" +
                 "url='" + url + '\'' +
                 ", company='" + company + '\'' +
                 ", location='" + location + '\'' +

@@ -1,7 +1,6 @@
 package com.ocbang.tools.crawler.linkedin;
 
 import org.apache.http.HttpHost;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.TrustStrategy;
