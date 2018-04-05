@@ -2,6 +2,7 @@ package com.ocbang.tools.crawler.wordpress;
 
 import com.ocbang.tools.crawler.internships.InternshipsJobDetailEntity;
 import com.ocbang.tools.crawler.internships.InternshipsJobSummaryEntity;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -216,7 +217,8 @@ public class WPPostsDAO {
         String sqlTemplate = "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) ";
         List<String> dataList = new ArrayList<>();
         for (Map.Entry<String, String> entry:this.metaKeyValues.entrySet()){
-            dataList.add(String.format("SELECT %d, '%s', '%s'", this.id, entry.getKey(), entry.getValue()));
+            dataList.add(String.format("SELECT %d, '%s', '%s'",
+                    this.id, entry.getKey(), StringEscapeUtils.escapeSql(entry.getValue())));
         }
         sqlTemplate += StringUtils.arrayToDelimitedString(dataList.toArray(), " UNION ALL ");
 
