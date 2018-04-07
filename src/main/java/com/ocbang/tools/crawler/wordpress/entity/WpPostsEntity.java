@@ -1,10 +1,7 @@
 package com.ocbang.tools.crawler.wordpress.entity;
 
-import javax.persistence.*;
 import java.sql.Timestamp;
 
-@Entity
-@Table(name = "wp_posts", schema = "wordpress", catalog = "")
 public class WpPostsEntity {
     private long id;
     private long postAuthor;
@@ -30,8 +27,6 @@ public class WpPostsEntity {
     private String postMimeType;
     private long commentCount;
 
-    @Id
-    @Column(name = "ID")
     public long getId() {
         return id;
     }
@@ -40,8 +35,6 @@ public class WpPostsEntity {
         this.id = id;
     }
 
-    @Basic
-    @Column(name = "post_author")
     public long getPostAuthor() {
         return postAuthor;
     }
@@ -50,8 +43,6 @@ public class WpPostsEntity {
         this.postAuthor = postAuthor;
     }
 
-    @Basic
-    @Column(name = "post_date")
     public Timestamp getPostDate() {
         return postDate;
     }
@@ -60,8 +51,6 @@ public class WpPostsEntity {
         this.postDate = postDate;
     }
 
-    @Basic
-    @Column(name = "post_date_gmt")
     public Timestamp getPostDateGmt() {
         return postDateGmt;
     }
@@ -70,8 +59,6 @@ public class WpPostsEntity {
         this.postDateGmt = postDateGmt;
     }
 
-    @Basic
-    @Column(name = "post_content")
     public String getPostContent() {
         return postContent;
     }
@@ -80,8 +67,6 @@ public class WpPostsEntity {
         this.postContent = postContent;
     }
 
-    @Basic
-    @Column(name = "post_title")
     public String getPostTitle() {
         return postTitle;
     }
@@ -90,8 +75,6 @@ public class WpPostsEntity {
         this.postTitle = postTitle;
     }
 
-    @Basic
-    @Column(name = "post_excerpt")
     public String getPostExcerpt() {
         return postExcerpt;
     }
@@ -100,8 +83,6 @@ public class WpPostsEntity {
         this.postExcerpt = postExcerpt;
     }
 
-    @Basic
-    @Column(name = "post_status")
     public String getPostStatus() {
         return postStatus;
     }
@@ -110,8 +91,6 @@ public class WpPostsEntity {
         this.postStatus = postStatus;
     }
 
-    @Basic
-    @Column(name = "comment_status")
     public String getCommentStatus() {
         return commentStatus;
     }
@@ -120,8 +99,6 @@ public class WpPostsEntity {
         this.commentStatus = commentStatus;
     }
 
-    @Basic
-    @Column(name = "ping_status")
     public String getPingStatus() {
         return pingStatus;
     }
@@ -130,8 +107,6 @@ public class WpPostsEntity {
         this.pingStatus = pingStatus;
     }
 
-    @Basic
-    @Column(name = "post_password")
     public String getPostPassword() {
         return postPassword;
     }
@@ -140,8 +115,6 @@ public class WpPostsEntity {
         this.postPassword = postPassword;
     }
 
-    @Basic
-    @Column(name = "post_name")
     public String getPostName() {
         return postName;
     }
@@ -150,8 +123,6 @@ public class WpPostsEntity {
         this.postName = postName;
     }
 
-    @Basic
-    @Column(name = "to_ping")
     public String getToPing() {
         return toPing;
     }
@@ -160,8 +131,6 @@ public class WpPostsEntity {
         this.toPing = toPing;
     }
 
-    @Basic
-    @Column(name = "pinged")
     public String getPinged() {
         return pinged;
     }
@@ -170,8 +139,6 @@ public class WpPostsEntity {
         this.pinged = pinged;
     }
 
-    @Basic
-    @Column(name = "post_modified")
     public Timestamp getPostModified() {
         return postModified;
     }
@@ -180,8 +147,6 @@ public class WpPostsEntity {
         this.postModified = postModified;
     }
 
-    @Basic
-    @Column(name = "post_modified_gmt")
     public Timestamp getPostModifiedGmt() {
         return postModifiedGmt;
     }
@@ -190,8 +155,6 @@ public class WpPostsEntity {
         this.postModifiedGmt = postModifiedGmt;
     }
 
-    @Basic
-    @Column(name = "post_content_filtered")
     public String getPostContentFiltered() {
         return postContentFiltered;
     }
@@ -200,8 +163,6 @@ public class WpPostsEntity {
         this.postContentFiltered = postContentFiltered;
     }
 
-    @Basic
-    @Column(name = "post_parent")
     public long getPostParent() {
         return postParent;
     }
@@ -210,8 +171,6 @@ public class WpPostsEntity {
         this.postParent = postParent;
     }
 
-    @Basic
-    @Column(name = "guid")
     public String getGuid() {
         return guid;
     }
@@ -220,8 +179,6 @@ public class WpPostsEntity {
         this.guid = guid;
     }
 
-    @Basic
-    @Column(name = "menu_order")
     public int getMenuOrder() {
         return menuOrder;
     }
@@ -230,8 +187,6 @@ public class WpPostsEntity {
         this.menuOrder = menuOrder;
     }
 
-    @Basic
-    @Column(name = "post_type")
     public String getPostType() {
         return postType;
     }
@@ -240,8 +195,6 @@ public class WpPostsEntity {
         this.postType = postType;
     }
 
-    @Basic
-    @Column(name = "post_mime_type")
     public String getPostMimeType() {
         return postMimeType;
     }
@@ -250,8 +203,6 @@ public class WpPostsEntity {
         this.postMimeType = postMimeType;
     }
 
-    @Basic
-    @Column(name = "comment_count")
     public long getCommentCount() {
         return commentCount;
     }
