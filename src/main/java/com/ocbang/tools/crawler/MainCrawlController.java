@@ -21,10 +21,7 @@ public class MainCrawlController implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-//        CloseableHttpClient httpClient = LinkedinHttpClientBuilder.create();
-//        LinkedinLoginController loginController = new LinkedinLoginController(httpClient, "garyfake@mail.com", "1234abcd!@#$");
-//        loginController.login();
-        internshipsCrawlController.run();
+        internshipsCrawlController.crawlByDefault();
     }
 
     public static void main(String[] args) {

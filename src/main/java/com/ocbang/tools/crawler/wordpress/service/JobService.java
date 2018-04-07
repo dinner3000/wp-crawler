@@ -7,8 +7,8 @@ import com.ocbang.tools.crawler.wordpress.dao.PostmetaDao;
 import com.ocbang.tools.crawler.wordpress.dao.PostsDao;
 import com.ocbang.tools.crawler.wordpress.dao.TermRelationshipsDao;
 import com.ocbang.tools.crawler.wordpress.dao.TermTaxonomyDao;
-import com.ocbang.tools.crawler.wordpress.entity.WpPostmetaEntity;
 import com.ocbang.tools.crawler.wordpress.entity.WpPostsEntity;
+import com.ocbang.tools.crawler.wordpress.entity.WpPostsEntityBuilder;
 import com.ocbang.tools.crawler.wordpress.helper.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +38,11 @@ public class JobService {
     private JobTypeService jobTypeService;
 
     @Autowired
-    PostsDao postsDao;
+    private WpPostsEntityBuilder postsEntityBuilder;
     @Autowired
-    PostmetaDao postmetaDao;
+    private PostsDao postsDao;
+    @Autowired
+    private PostmetaDao postmetaDao;
     @Autowired
     protected TermRelationshipsDao termRelationshipsDao;
     @Autowired
@@ -60,6 +62,17 @@ public class JobService {
     @Value("${wordpress.baseUrl}/?p=%d")
     private String guidTemplate;
 
+    @Value("${wordpress.auto-create-company}")
+    private boolean autoCreateCompany;
+
+    public boolean isAutoCreateCompany() {
+        return autoCreateCompany;
+    }
+
+    public void setAutoCreateCompany(boolean autoCreateCompany) {
+        this.autoCreateCompany = autoCreateCompany;
+    }
+
     @Transactional
     public void addNewOne(InternshipsJobSummaryEntity jobSummaryEntity, InternshipsJobDetailEntity jobDetailEntity) {
 
@@ -71,10 +84,10 @@ public class JobService {
             return;
         }
 
-        if(companyService.tryGetExistingId(jobSummaryEntity.getCompany()) <= 0){
-            logger.info("Not in company list, skip ... ");
-            return;
-        }
+//        if (companyService.tryGetExistingId(jobSummaryEntity.getCompany()) <= 0) {
+//            logger.info("Not in company list, skip ... ");
+//            return;
+//        }
 
         //Save job details
         Long id = this.addNewPost(jobSummaryEntity, jobDetailEntity);
@@ -89,7 +102,7 @@ public class JobService {
 
         //Find out category id or create a new one
         Long categoryId = 0L;
-        if(!StringUtils.isEmpty(jobDetailEntity.getCategory())) {
+        if (!StringUtils.isEmpty(jobDetailEntity.getCategory())) {
             categoryId = jobCategoryService.tryGetExistingId(jobDetailEntity.getCategory());
             if (categoryId == 0) {
                 categoryId = jobCategoryService.addNewOne(jobDetailEntity.getCategory());
@@ -98,7 +111,7 @@ public class JobService {
 
         //Find out type id
         Long typeId = 0L;
-        if(!StringUtils.isEmpty(jobSummaryEntity.getTimeType())) {
+        if (!StringUtils.isEmpty(jobSummaryEntity.getTimeType())) {
             typeId = jobTypeService.tryGetExistingId(jobSummaryEntity.getTimeType());
         }
 
@@ -114,7 +127,7 @@ public class JobService {
         }
 
         //Create job details entity with default values
-        WpPostsEntity postsEntity = this.buildDefaultPostsEntity();
+        WpPostsEntity postsEntity = postsEntityBuilder.build(this.defaultPostAuthor, "noo_job");
 
         //Set other job details with crawled data
         postsEntity.setPostTitle(jobDetailEntity.getTitle());
@@ -133,15 +146,15 @@ public class JobService {
         postsDao.updateGuidById(this.generateGUID(id), id);
 
         //Save job company/category/type/location, update related statistics
-        if(categoryId != 0){
+        if (categoryId != 0) {
             termRelationshipsDao.insertOne(id, categoryId);
             termTaxonomyDao.updateTaxonomyCountById(categoryId);
         }
-        if(typeId != 0){
+        if (typeId != 0) {
             termRelationshipsDao.insertOne(id, typeId);
             termTaxonomyDao.updateTaxonomyCountById(typeId);
         }
-        if(locationId != 0){
+        if (locationId != 0) {
             termRelationshipsDao.insertOne(id, locationId);
             termTaxonomyDao.updateTaxonomyCountById(locationId);
         }
@@ -150,9 +163,7 @@ public class JobService {
     }
 
     @Transactional
-    protected List<WpPostmetaEntity> addNewPostmetas(Long id, InternshipsJobSummaryEntity jobSummaryEntity, InternshipsJobDetailEntity jobDetailEntity) {
-        List<WpPostmetaEntity> postmetaEntities = new ArrayList<>();
-
+    protected void addNewPostmetas(Long id, InternshipsJobSummaryEntity jobSummaryEntity, InternshipsJobDetailEntity jobDetailEntity) {
 
         Map<String, String> dataMap = new HashMap<>();
         dataMap.put("_vc_post_settings", "a:1:{s:10:\\\"vc_grid_id\\\";a:0:{}}");
@@ -161,15 +172,22 @@ public class JobService {
 
         dataMap.put("_company_name", jobSummaryEntity.getCompany());
         dataMap.put("_company_desc", jobDetailEntity.getCompany());
+
         Long companyId = companyService.tryGetExistingId(jobSummaryEntity.getCompany());
-        if(companyId != 0) {
-            dataMap.put("_company_id", String.valueOf(companyId));
+        if(companyId == 0L) {
+            if (autoCreateCompany) {
+                companyId = companyService.addNewOne(this.defaultPostAuthor, jobSummaryEntity.getCompany(), jobSummaryEntity.getCompany());
+            }
+        }
+        if(companyId != 0L) {
             WpPostsEntity postsEntity = companyService.tryGetPostsEntityById(companyId);
-            if(postsEntity != null) {
+            if (postsEntity != null) {
+                dataMap.put("_company_id", String.valueOf(companyId));
                 dataMap.put("_company_name", postsEntity.getPostTitle());
                 dataMap.put("_company_desc", postsEntity.getPostContent());
             }
         }
+
         dataMap.put("_location", jobSummaryEntity.getLocation());
         String expires = this.extractTimeframeDate(jobDetailEntity.getEndDate());
         if (expires != null) dataMap.put("_job_expires", expires);
@@ -191,39 +209,6 @@ public class JobService {
             postmetaDao.insertOne(id, entry.getKey(), entry.getValue());
         }
 
-        return postmetaEntities;
-    }
-
-    protected WpPostsEntity buildDefaultPostsEntity() {
-
-        WpPostsEntity entity = new WpPostsEntity();
-        entity.setPostAuthor(this.defaultPostAuthor);
-        entity.setPostStatus("publish");
-        entity.setPostType("noo_job");
-        entity.setCommentStatus("closed");
-        entity.setPingStatus("closed");
-        entity.setPostParent(0);
-        entity.setMenuOrder(0);
-
-        entity.setPostContentFiltered("");
-        entity.setPostExcerpt("");
-        entity.setPostPassword("");
-        entity.setToPing("");
-        entity.setPinged("");
-        entity.setPostMimeType("");
-
-        entity.setPostTitle("");
-        entity.setPostName("");
-        entity.setPostContent("");
-        entity.setGuid("");
-
-        Timestamp timestamp = new Timestamp(0);
-        entity.setPostDate(timestamp);
-        entity.setPostDateGmt(timestamp);
-        entity.setPostModified(timestamp);
-        entity.setPostModifiedGmt(timestamp);
-
-        return entity;
     }
 
     protected Timestamp extractPostedDate(String dateText) {

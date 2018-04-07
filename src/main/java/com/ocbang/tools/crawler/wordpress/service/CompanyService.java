@@ -2,6 +2,7 @@ package com.ocbang.tools.crawler.wordpress.service;
 
 import com.ocbang.tools.crawler.wordpress.dao.PostsDao;
 import com.ocbang.tools.crawler.wordpress.entity.WpPostsEntity;
+import com.ocbang.tools.crawler.wordpress.entity.WpPostsEntityBuilder;
 import com.ocbang.tools.crawler.wordpress.helper.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ public class CompanyService extends CacheableService {
 
     protected List<WpPostsEntity> cache;
 
+    @Autowired
+    private WpPostsEntityBuilder postsEntityBuilder;
     @Autowired
     protected PostsDao postsDao;
 
@@ -37,6 +40,18 @@ public class CompanyService extends CacheableService {
         }
 
         return ret;
+    }
+
+    public Long addNewOne(Long postAuthor, String name, String desc){
+
+        WpPostsEntity postsEntity = postsEntityBuilder.build(postAuthor, "noo_company");
+        postsEntity.setPostTitle(name);
+        postsEntity.setPostName(StringHelper.sanitizeTitle(name));
+        postsEntity.setPostContent(desc);
+
+        Long id = postsDao.insertOne(postsEntity);
+        this.reloadCache();
+        return id;
     }
 
     public WpPostsEntity tryGetPostsEntityById(Long id){

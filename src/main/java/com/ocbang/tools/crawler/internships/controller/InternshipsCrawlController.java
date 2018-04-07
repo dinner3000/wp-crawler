@@ -37,7 +37,7 @@ public class InternshipsCrawlController {
     @Autowired
     private InternshipsJobDetailEntityQualifier internshipsJobDetailEntityQualifier;
 
-    public void run() throws Exception {
+    public void crawlByCompany() throws Exception {
         CloseableHttpClient httpClient = InternshipsHttpClientBuilder.create();
 
         logger.info("Visit home page ... ");
@@ -86,4 +86,52 @@ public class InternshipsCrawlController {
         }
     }
 
+    public void crawlByDefault() throws Exception {
+        CloseableHttpClient httpClient = InternshipsHttpClientBuilder.create();
+
+        logger.info("Visit home page ... ");
+        CloseableHttpResponse response;
+        HttpGet get = new HttpGet(this.homePageUrl);
+        response = httpClient.execute(get);
+        response.close();
+
+        logger.info("Wait for 1 sec ... ");
+        Thread.sleep(1000);
+
+
+        for(int i = 1; i <= 3; i++){
+            logger.info("Visit job page: {}", i);
+            List<InternshipsJobSummaryEntity> jobSummaryEntities = jobSearchController.searchByDefault(httpClient,i);
+            logger.info("{} job items found", jobSummaryEntities.size());
+
+            logger.info("Wait for 3 sec ... ");
+            Thread.sleep(3000);
+
+            //Job details
+            for (InternshipsJobSummaryEntity jobSummaryEntity : jobSummaryEntities) {
+
+                logger.info("Processing: {}", jobSummaryEntity.toString());
+                get = new HttpGet(jobSummaryEntity.getUrl());
+                get.setHeader("Referer", jobSearchController.getSearchUrl());
+                response = httpClient.execute(get);
+
+                InternshipsJobDetailPage internshipsJobDetailPage = InternshipsJobDetailPage.createFromEntity(response.getEntity());
+                InternshipsJobDetailEntity jobDetailEntity = internshipsJobDetailPage.produceJobDetailEntity();
+                logger.info("Parsed entity: {}", jobDetailEntity.toString());
+
+                if (!this.internshipsJobDetailEntityQualifier.isQualified(jobDetailEntity)) {
+                    logger.info("Not qualified，drop it");
+                } else {
+                    logger.info("Import into db ... ");
+                    jobService.addNewOne(jobSummaryEntity, jobDetailEntity);
+                }
+
+                logger.info("Wait for 3 sec ... ");
+                Thread.sleep(3000);
+            }
+
+            logger.info("Wait for 10 sec ... ");
+            Thread.sleep(10000);
+        }
+    }
 }
