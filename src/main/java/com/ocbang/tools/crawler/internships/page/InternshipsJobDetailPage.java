@@ -1,6 +1,6 @@
-package com.ocbang.tools.crawler.internships;
+package com.ocbang.tools.crawler.internships.page;
 
-import com.sun.xml.internal.bind.v2.runtime.output.NamespaceContextImpl;
+import com.ocbang.tools.crawler.internships.entity.InternshipsJobDetailEntity;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -29,6 +29,7 @@ public class InternshipsJobDetailPage {
     public InternshipsJobDetailEntity produceJobDetailEntity() {
         InternshipsJobDetailEntity internshipsJobDetailEntity = new InternshipsJobDetailEntity();
 
+        Element category = this.document.select("ul[class=breadcrumb] li:nth-child(2) a").first();
         Element title = this.document.select("div[class=internship-detail-header] h1[class]").first();
         Element company = this.document.select("div[class=company-info] td[class=company-detail] div[class=company-name]>span").first();
         Element location = this.document.select("div[class=company-info] td[class=company-detail] div[class=location]").first();
@@ -37,6 +38,10 @@ public class InternshipsJobDetailPage {
         Element description = this.document.select("div[class=section description]").first();
         Element responsibilities = this.document.select("div[class=section responsibilities]").first();
         Element requirements = this.document.select("div[class=section requirements]").first();
+
+        if(category != null){
+            internshipsJobDetailEntity.setCategory(category.text());
+        }
 
         if (title != null) {
             internshipsJobDetailEntity.setTitle(title.text());

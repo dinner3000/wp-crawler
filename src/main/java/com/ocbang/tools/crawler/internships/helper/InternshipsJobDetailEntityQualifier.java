@@ -1,5 +1,6 @@
-package com.ocbang.tools.crawler.internships;
+package com.ocbang.tools.crawler.internships.helper;
 
+import com.ocbang.tools.crawler.internships.entity.InternshipsJobDetailEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 

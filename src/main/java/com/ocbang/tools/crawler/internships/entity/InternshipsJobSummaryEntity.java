@@ -1,4 +1,4 @@
-package com.ocbang.tools.crawler.internships;
+package com.ocbang.tools.crawler.internships.entity;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +13,6 @@ public class InternshipsJobSummaryEntity {
     private String posted;
     private String timeType;
     private String payType;
-
-    protected InternshipsJobSummaryEntity() {
-    }
 
     @Override
     public String toString() {

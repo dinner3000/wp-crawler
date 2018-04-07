@@ -1,4 +1,4 @@
-package com.ocbang.tools.crawler.internships;
+package com.ocbang.tools.crawler.internships.helper;
 
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;

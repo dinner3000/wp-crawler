@@ -1,8 +1,9 @@
-package com.ocbang.tools.crawler.internships;
+package com.ocbang.tools.crawler.internships.entity;
 
 public class InternshipsJobDetailEntity {
 
     //Data come from crawler
+    private String category;
     private String title;
     private String company;
     private String posted;
@@ -17,6 +18,14 @@ public class InternshipsJobDetailEntity {
     private String timeframe;
     private String startDate;
     private String endDate;
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
     public String getTitle() {
         return title;
@@ -125,7 +134,8 @@ public class InternshipsJobDetailEntity {
     @Override
     public String toString() {
         return "InternshipsJobDetailEntity{" +
-                "title='" + title + '\'' +
+                "category='" + category + '\'' +
+                ", title='" + title + '\'' +
                 ", company='" + company + '\'' +
                 ", posted='" + posted + '\'' +
                 ", location='" + location + '\'' +

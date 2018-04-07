@@ -1,4 +1,4 @@
-package com.ocbang.tools.crawler.internships;
+package com.ocbang.tools.crawler.internships.helper;
 
 import java.util.Arrays;
 import java.util.List;

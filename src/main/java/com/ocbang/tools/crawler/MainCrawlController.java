@@ -1,6 +1,6 @@
 package com.ocbang.tools.crawler;
 
-import com.ocbang.tools.crawler.internships.InternshipsCrawlController;
+import com.ocbang.tools.crawler.internships.controller.InternshipsCrawlController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

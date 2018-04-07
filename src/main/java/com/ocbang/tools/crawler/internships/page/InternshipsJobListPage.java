@@ -1,5 +1,7 @@
-package com.ocbang.tools.crawler.internships;
+package com.ocbang.tools.crawler.internships.page;
 
+import com.ocbang.tools.crawler.internships.entity.InternshipsJobSummaryEntity;
+import com.ocbang.tools.crawler.internships.helper.InternshipsJobDetailPageUrlQualifier;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -41,18 +43,18 @@ public class InternshipsJobListPage {
             Element payType = listItem.select("span[class=job-type job-paid]").first();
 
             String absUrl = null;
-            String category = null;
+//            String category = null;
             if(url != null) {
                 absUrl = url.absUrl("href");
-                String[] buffer = url.attr("href").split("/");
-                if(buffer.length > 1) category = buffer[1];
+//                String[] buffer = url.attr("href").split("/");
+//                if(buffer.length > 1) category = buffer[1];
             }
 
             if(!StringUtils.isEmpty(absUrl) && InternshipsJobDetailPageUrlQualifier.isQualified(absUrl)){
 
                 InternshipsJobSummaryEntity jobItem = new InternshipsJobSummaryEntity();
                 jobItem.setUrl(absUrl);
-                if(category != null) jobItem.setCategory(category);
+//                if(category != null) jobItem.setCategory(category);
                 if(company != null) jobItem.setCompany(company.text());
                 if(location != null) jobItem.setLocation(location.text());
                 if(posted != null) jobItem.setPosted(posted.text());
