@@ -74,27 +74,32 @@ public class JobService {
     }
 
     @Transactional
-    public void addNewOne(InternshipsJobSummaryEntity jobSummaryEntity, InternshipsJobDetailEntity jobDetailEntity) {
+    public boolean addNewOne(InternshipsJobSummaryEntity jobSummaryEntity, InternshipsJobDetailEntity jobDetailEntity) {
 
-        //Skip if job already exist
-        if (postsDao.getPostCountByComboKeys(this.defaultPostAuthor,
-                StringHelper.sanitizeTitle(jobDetailEntity.getTitle()),
-                this.extractPostedDate(jobDetailEntity.getPosted())) > 0) {
-            logger.info("Job already exists, skip ... ");
-            return;
-        }
+        try {
+            //Skip if job already exist
+            if (postsDao.getPostCountByComboKeys(this.defaultPostAuthor,
+                    StringHelper.sanitizeTitle(jobDetailEntity.getTitle()),
+                    this.extractPostedDate(jobDetailEntity.getPosted())) > 0) {
+                logger.info("Job already exists, skip ... ");
+                return false;
+            }
 
 //        if (companyService.tryGetExistingId(jobSummaryEntity.getCompany()) <= 0) {
 //            logger.info("Not in company list, skip ... ");
 //            return;
 //        }
 
-        //Save job details
-        Long id = this.addNewPost(jobSummaryEntity, jobDetailEntity);
+            //Save job details
+            Long id = this.addNewPost(jobSummaryEntity, jobDetailEntity);
 
-        //Save job meta
-        this.addNewPostmetas(id, jobSummaryEntity, jobDetailEntity);
-
+            //Save job meta
+            this.addNewPostmetas(id, jobSummaryEntity, jobDetailEntity);
+            return true;
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return false;
+        }
     }
 
     @Transactional
