@@ -124,7 +124,7 @@ public class JobService {
         InternshipsJobLocationEntity locationEntity =
                 InternshipsJobLocationEntity.parseFromCrawledText(jobSummaryEntity.getLocation());
         Long locationId = 0L;
-        if (locationEntity != null && StringUtils.isEmpty(locationEntity.getCity())) {
+        if (locationEntity != null && !StringUtils.isEmpty(locationEntity.getCity())) {
             locationId = jobLocationService.tryGetExistingId(locationEntity.getCity());
             if (locationId == 0L) {
                 locationId = jobLocationService.addNewOne(locationEntity.getCity());

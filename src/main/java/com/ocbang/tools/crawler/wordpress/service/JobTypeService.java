@@ -28,7 +28,7 @@ public class JobTypeService extends CacheableService {
 
     public Long addNewOne(String name){
         Long id = termsDAO.insertOne(name);
-        termTaxonomyDao.insertOne(taxonomy, "");
+        termTaxonomyDao.insertOne(id, taxonomy, "");
         this.reloadCache();
         return id;
     }

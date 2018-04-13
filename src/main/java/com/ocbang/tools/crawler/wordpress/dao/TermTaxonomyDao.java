@@ -10,11 +10,11 @@ public class TermTaxonomyDao {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public void insertOne(String taxonomy, String description){
-        String insertTemplate = "INSERT INTO `wp_term_taxonomy` (`taxonomy`, `description`, `parent`, `count`) " +
-                "VALUES (?, ?, 0, 0)";
+    public void insertOne(Long termId, String taxonomy, String description){
+        String insertTemplate = "INSERT INTO `wp_term_taxonomy` (`term_id`, `taxonomy`, `description`, `parent`, `count`) " +
+                "VALUES (?, ?, ?, 0, 0)";
 
-        jdbcTemplate.update(insertTemplate, taxonomy, description);
+        jdbcTemplate.update(insertTemplate, termId, taxonomy, description);
     }
 
     public void updateTaxonomyCountById(Long termId){
