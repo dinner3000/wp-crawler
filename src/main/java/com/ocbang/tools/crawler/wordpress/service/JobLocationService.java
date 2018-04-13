@@ -1,5 +1,6 @@
 package com.ocbang.tools.crawler.wordpress.service;
 
+import com.ocbang.tools.crawler.wordpress.dao.TermTaxonomyDao;
 import com.ocbang.tools.crawler.wordpress.dao.TermsDao;
 import com.ocbang.tools.crawler.wordpress.helper.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +16,19 @@ public class JobLocationService extends CacheableService {
 
     @Autowired
     protected TermsDao termsDAO;
+    @Autowired
+    protected TermTaxonomyDao termTaxonomyDao;
+
+    protected final String taxonomy = "job_location";
 
     @Override
     public void reloadCache(){
-        cache = termsDAO.selectManyByTaxonomy("job_location");
+        cache = termsDAO.selectManyByTaxonomy(taxonomy);
     }
 
     public Long addNewOne(String name){
         Long id = termsDAO.insertOne(name);
+        termTaxonomyDao.insertOne(taxonomy, "");
         this.reloadCache();
         return id;
     }
