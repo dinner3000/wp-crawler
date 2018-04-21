@@ -1,6 +1,7 @@
 package com.ocbang.tools.crawler.wordpress.service;
 
 import com.ocbang.tools.crawler.wordpress.dao.TermTaxonomyDao;
+import com.ocbang.tools.crawler.wordpress.dao.TermmetaDao;
 import com.ocbang.tools.crawler.wordpress.dao.TermsDao;
 import com.ocbang.tools.crawler.wordpress.helper.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ public class JobCategoryService extends CacheableService {
     @Autowired
     protected TermsDao termsDAO;
     @Autowired
+    protected TermmetaDao termmetaDao;
+    @Autowired
     protected TermTaxonomyDao termTaxonomyDao;
 
     protected final String taxonomy = "job_category";
@@ -28,6 +31,8 @@ public class JobCategoryService extends CacheableService {
 
     public Long addNewOne(String name) {
         Long id = termsDAO.insertOne(name);
+        termmetaDao.insertOne(id, "location_long", "");
+        termmetaDao.insertOne(id, "location_lat", "");
         termTaxonomyDao.insertOne(id, taxonomy, "");
         this.reloadCache();
         return id;
