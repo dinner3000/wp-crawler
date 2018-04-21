@@ -26,7 +26,7 @@ public class JobLocationService extends CacheableService {
 
     @Override
     public void reloadCache(){
-        cache = termsDAO.selectManyByTaxonomy(taxonomy);
+        cache = termTaxonomyDao.selectManyByTaxonomy(taxonomy);
     }
 
     public Long addNewOne(String name){
@@ -34,7 +34,7 @@ public class JobLocationService extends CacheableService {
         termmetaDao.insertOne(id, "_geolocation", "");
         termmetaDao.insertOne(id, "location_long", "");
         termmetaDao.insertOne(id, "location_lat", "");
-        termTaxonomyDao.insertOne(id, taxonomy, "");
+        id = termTaxonomyDao.insertOne(id, taxonomy, "");
         this.reloadCache();
         return id;
     }

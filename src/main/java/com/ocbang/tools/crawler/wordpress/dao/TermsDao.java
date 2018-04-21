@@ -4,14 +4,14 @@ import com.ocbang.tools.crawler.wordpress.helper.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 @Repository
 public class TermsDao {
@@ -38,18 +38,4 @@ public class TermsDao {
         return id;
     }
 
-    public Map<String, Long> selectManyByTaxonomy(String taxonomy){
-        String selectTemplate = "SELECT tm.slug, tm.term_id FROM wp_term_taxonomy tt " +
-                "LEFT JOIN wp_terms tm ON tm.term_id= tt.term_id " +
-                "WHERE tt.taxonomy = ?";
-
-        Map<String, Long> map = new HashMap<>();
-        jdbcTemplate.query(selectTemplate, new Object[]{taxonomy}, new RowCallbackHandler() {
-            @Override
-            public void processRow(ResultSet resultSet) throws SQLException {
-                map.put(resultSet.getString("slug"), resultSet.getLong("term_id"));
-            }
-        });
-        return map;
-    }
 }

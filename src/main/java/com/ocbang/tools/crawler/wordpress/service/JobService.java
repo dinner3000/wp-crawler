@@ -21,7 +21,9 @@ import org.springframework.util.StringUtils;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class JobService {
@@ -106,28 +108,28 @@ public class JobService {
     protected Long addNewPost(InternshipsJobSummaryEntity jobSummaryEntity, InternshipsJobDetailEntity jobDetailEntity) {
 
         //Find out category id or create a new one
-        Long categoryId = 0L;
+        Long categoryTaxonomyId = 0L;
         if (!StringUtils.isEmpty(jobDetailEntity.getCategory())) {
-            categoryId = jobCategoryService.tryGetExistingId(jobDetailEntity.getCategory());
-            if (categoryId == 0) {
-                categoryId = jobCategoryService.addNewOne(jobDetailEntity.getCategory());
+            categoryTaxonomyId = jobCategoryService.tryGetExistingId(jobDetailEntity.getCategory());
+            if (categoryTaxonomyId == 0) {
+                categoryTaxonomyId = jobCategoryService.addNewOne(jobDetailEntity.getCategory());
             }
         }
 
         //Find out type id
-        Long typeId = 0L;
+        Long typeTaxonomyId = 0L;
         if (!StringUtils.isEmpty(jobSummaryEntity.getTimeType())) {
-            typeId = jobTypeService.tryGetExistingId(jobSummaryEntity.getTimeType());
+            typeTaxonomyId = jobTypeService.tryGetExistingId(jobSummaryEntity.getTimeType());
         }
 
         //Find out location id or create a new one
         InternshipsJobLocationEntity locationEntity =
                 InternshipsJobLocationEntity.parseFromCrawledText(jobSummaryEntity.getLocation());
-        Long locationId = 0L;
+        Long locationTaxonomyId = 0L;
         if (locationEntity != null && !StringUtils.isEmpty(locationEntity.getCity())) {
-            locationId = jobLocationService.tryGetExistingId(locationEntity.getCity());
-            if (locationId == 0L) {
-                locationId = jobLocationService.addNewOne(locationEntity.getCity());
+            locationTaxonomyId = jobLocationService.tryGetExistingId(locationEntity.getCity());
+            if (locationTaxonomyId == 0L) {
+                locationTaxonomyId = jobLocationService.addNewOne(locationEntity.getCity());
             }
         }
 
@@ -151,17 +153,17 @@ public class JobService {
         postsDao.updateGuidById(this.generateGUID(id), id);
 
         //Save job company/category/type/location, update related statistics
-        if (categoryId != 0) {
-            termRelationshipsDao.insertOne(id, categoryId);
-            termTaxonomyDao.updateTaxonomyCountById(categoryId);
+        if (categoryTaxonomyId != 0) {
+            termRelationshipsDao.insertOne(id, categoryTaxonomyId);
+            termTaxonomyDao.updateTaxonomyCountById(categoryTaxonomyId);
         }
-        if (typeId != 0) {
-            termRelationshipsDao.insertOne(id, typeId);
-            termTaxonomyDao.updateTaxonomyCountById(typeId);
+        if (typeTaxonomyId != 0) {
+            termRelationshipsDao.insertOne(id, typeTaxonomyId);
+            termTaxonomyDao.updateTaxonomyCountById(typeTaxonomyId);
         }
-        if (locationId != 0) {
-            termRelationshipsDao.insertOne(id, locationId);
-            termTaxonomyDao.updateTaxonomyCountById(locationId);
+        if (locationTaxonomyId != 0) {
+            termRelationshipsDao.insertOne(id, locationTaxonomyId);
+            termTaxonomyDao.updateTaxonomyCountById(locationTaxonomyId);
         }
 
         return id;

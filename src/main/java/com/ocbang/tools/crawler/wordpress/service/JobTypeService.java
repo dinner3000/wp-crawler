@@ -26,15 +26,12 @@ public class JobTypeService extends CacheableService {
 
     @Override
     public void reloadCache(){
-        cache = termsDAO.selectManyByTaxonomy(taxonomy);
+        cache = termTaxonomyDao.selectManyByTaxonomy(taxonomy);
     }
 
     public Long addNewOne(String name){
         Long id = termsDAO.insertOne(name);
-        termmetaDao.insertOne(id, "location_long", "");
-        termmetaDao.insertOne(id, "location_lat", "");
-        termmetaDao.insertOne(id, "_color", "#578523");
-        termTaxonomyDao.insertOne(id, taxonomy, "");
+        id = termTaxonomyDao.insertOne(id, taxonomy, "");
         this.reloadCache();
         return id;
     }
